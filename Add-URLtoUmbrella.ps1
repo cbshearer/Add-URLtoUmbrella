@@ -1,6 +1,6 @@
 ## Umbrella Enforcement API: https://docs.umbrella.com/enforcement-api/reference/
 
-## specify TLS
+## specify TLS1.2
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12 
 
 ## PP TAP PS key
@@ -15,7 +15,7 @@ write-host "$UmbrellaURI" -f Green
         $UmbrellaDate = get-date -f yyyy-mm-ddThh:mm:ssZ
     
     ## build body 
-        $UmbrellaBody = @("`"alertTime`":`"$UmbrellaDate`";`"deviceID`":`"WXYZ`";`"deviceVersion`":`"TAP via Powershell 1.0`";`"dstDomain`":`"internetbadguys.com`";`"dstURL`":`"https://internetbadguys.com/bad/file/path`";`"eventTime`":`"$UmbrellaDate`";`"protocolVersion`":`"1.0a`";`"providerName`":`"Security Platform`"")
+        $UmbrellaBody = @("`{`"alertTime`":`"$UmbrellaDate`";`"deviceID`":`"WXYZ`";`"deviceVersion`":`"TAP via Powershell 1.0`";`"dstDomain`":`"internetbadguys.com`";`"dstURL`":`"https://internetbadguys.com/bad/file/path`";`"eventTime`":`"$UmbrellaDate`";`"protocolVersion`":`"1.0a`";`"providerName`":`"Security Platform`"`}")
         
     ## convert body to JSON?
         $UmbrellaBody = $UmbrellaBody | ConvertTo-Json
