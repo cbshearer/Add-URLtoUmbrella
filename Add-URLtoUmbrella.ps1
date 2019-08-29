@@ -1,6 +1,6 @@
 ## Umbrella Enforcement API: https://docs.umbrella.com/enforcement-api/reference/
 
-## specify TLS1.2
+## specify TLS
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12 
 
 ## PP TAP PS key
