@@ -44,4 +44,4 @@
             write-host -f Magenta $dog
         }
 ## resulting data stored here
-    if ($UmbrellaAdd.id) {write-host "Success: " $umbrellaAdd.id}
+    if ($UmbrellaAdd.id) {write-host -f Green "Success: " $umbrellaAdd.id}
