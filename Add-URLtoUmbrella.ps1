@@ -1,3 +1,6 @@
+## Cisco Umbrella Enforcement
+## Chris Shearer
+## 8.30.2019
 ## Umbrella Enforcement API: https://docs.umbrella.com/enforcement-api/reference/
 
 ## specify TLS
@@ -8,8 +11,15 @@
     $UmbrellaURI            = "https://s-platform.api.opendns.com/1.0/events?customerKey=" + $UmbrellaCustomerKey
 
 ## Domains to add    
-    $Domain = "internetbadguys.com"
     $MalURL = "https://www.internetbadguys.com/bad/url.php"
+
+## clean up URL
+    ## add http:// if it isn't there
+        if  ($malurl -notlike "http*") {$malurl = "http://" + $malurl}
+    ## Reduce full URL to just the domain
+        $Domain = ([System.Uri]$malURL).Host -replace '^www\.'
+        write-host "Domain : " $Domain
+        if (!($domain)) {$domain = $malurl}
 
 ## Specify headers
     $UmbrellaHeaders = @{'Content-Type' = 'application/json'}
