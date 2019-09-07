@@ -27,7 +27,7 @@
 ## Compose date to specification
     $UmbrellaDate = get-date -f yyyy-MM-ddThh:mm:ssZ
     
-## uild body 
+## Build body 
     $UmbrellaBody =  [pscustomobject]@{"alertTime"=$UmbrellaDate;
                                         "deviceId"=$env:computername;
                                         "deviceVersion"="TAP via Powershell 1.0";
