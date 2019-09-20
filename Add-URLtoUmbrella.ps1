@@ -4,7 +4,7 @@
 ## Umbrella Enforcement API: https://docs.umbrella.com/enforcement-api/reference/
 
 ## Specify TLS
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12 
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 
 
 ## Umbrella key
     $UmbrellaCustomerKey    = "1111-2222-3333-4444"
