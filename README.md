@@ -1,2 +1,2 @@
 # Add-URLtoUmbrella
-Add a given hyperlink to Cisco Umbrella using Enforcement API
+Use PowerShell to add a given hyperlink to Cisco Umbrella using Enforcement API
