@@ -10,9 +10,7 @@
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 
 
 ## Umbrella Key
-    $CredFile   = import-csv 'E:\scripts\powershell\TAP\credentials.csv'
-    $UmbrellaCustomerKey   = $CredFile | Where-Object -Property Type -eq 'UmbrellaCustomerKey'
-    $UmbrellaCustomerKey   = $UmbrellaCustomerKey.data
+    $UmbrellaCustomerKey = "11111-22222-33333-44444"
     $UmbrellaURI = "https://s-platform.api.opendns.com/1.0/events?customerKey=" + $UmbrellaCustomerKey
 
 ## Assign variables if they were entered from the CLI
@@ -20,7 +18,7 @@
     
 ## If variable wasn't passed from CLI, use what was saved into file directly, or from an external text file.
     else {
-        $MalURLs  = @("https://cleverexample.buzz/go/away/now.php")}   
+        $MalURLs  = @("https://cleverexample.buzz/go/away/now.php")
         #$MalURLs = Get-Content "E:\scripts\powershell\Add-toUmbrella\UMBRELLA_LIST.txt"
     }
 
@@ -43,11 +41,10 @@ foreach ($MalURL in $MalURLs)
                 write-host "Url    : " $MalURL
                 if (!($domain)) {$domain = $MalURL}
         
-        ## Check whitelist before blocking
+        ## Check allow list before blocking
             if ($whitelist -notcontains $domain)                                
                 {
-                    write-host $domain -nonewline; write-host -f Green " not found in whitelist"
-                    write-host $UmbrellaURI
+                    write-host $domain -nonewline; write-host -f Green " not found in allow list."
                     ## Specify headers
                         $UmbrellaHeaders = @{'Content-Type' = 'application/json'}
                     
@@ -70,7 +67,8 @@ foreach ($MalURL in $MalURLs)
                     ## Add this domain/url to Umbrella
                         try { 
                             Start-Sleep 2 ## slow it down so we dont hit the rate limit of 100 calls/min.
-                            $UmbrellaAdd = Invoke-RestMethod -uri $UmbrellaURI -ErrorVariable RestError -Headers $UmbrellaHeaders -body $UmbrellaBody -Method Post 
+                            $UmbrellaAdd = Invoke-RestMethod -uri 
+                            -ErrorVariable RestError -Headers $UmbrellaHeaders -body $UmbrellaBody -Method Post 
                         }
                         catch {
                             $cat = $_.Exception ## if there is an error store it as catch
@@ -81,9 +79,11 @@ foreach ($MalURL in $MalURLs)
                         }
                     ## resulting data stored here
                         if ($UmbrellaAdd.id) {
-                            write-host -f Green "Success:" $umbrellaAdd.id
-                            Write-Host -f Darkcyan $MalURL
+                            Write-Host "Result     :  " -nonewline; Write-Host -f DarkCyan $MalURL -NoNewline; Write-Host -f green " added to Cisco Umbrella successfully."
+                        }
+                        else {
+                            Write-Host " Failure   :  " -nonewline; Write-Host -f magenta "Something went wrong."
                         }
                 }
-            else {Write-Host "The domain " -NoNewline; Write-Host -f green $MalURL -NoNewline; write-host " was found in the whitelist."}
+            else {Write-Host "The domain " -NoNewline; Write-Host -f green $MalURL -NoNewline; write-host " was found in the allow list."}
     }
