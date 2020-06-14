@@ -3,6 +3,9 @@
 ## 8.30.2019
 ## Umbrella Enforcement API: https://docs.umbrella.com/enforcement-api/reference/
 
+## Accept CLI parameters
+    param ($u)
+
 ## specify TLS
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 
 
@@ -12,10 +15,14 @@
     $UmbrellaCustomerKey   = $UmbrellaCustomerKey.data
     $UmbrellaURI = "https://s-platform.api.opendns.com/1.0/events?customerKey=" + $UmbrellaCustomerKey
 
-## Array of URLs to parse and add
-    $MalURLs = @()
-    $MalURLs += "https://www.internetbadguys.com/bad/url.php"
-    $MalURLs += "http://exampleadultsite.com"
+## Assign variables if they were entered from the CLI
+    if ($u){$MalURLs = @($u)}
+    
+## If variable wasn't passed from CLI, use what was saved into file directly, or from an external text file.
+    else {
+        $MalURLs  = @("https://cleverexample.buzz/go/away/now.php")}   
+        #$MalURLs = Get-Content "E:\scripts\powershell\Add-toUmbrella\UMBRELLA_LIST.txt"
+    }
 
 ## Reference an external customizable whitelist file rather than list multiple in this script. 
 ## Note the Umbrella 'Domain Acceptance Process' already sorts the domains and compares against the Alexa top 1000 (https://docs.umbrella.com/enforcement-api/reference/#domain-acceptance-process-1)
