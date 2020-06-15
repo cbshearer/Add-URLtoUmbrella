@@ -5,7 +5,8 @@ microsoft.com
 sharepoint.com
 1drv.ms
 live.com
-bit.lyamazon.com
+bit.ly
+amazon.com
 google.com
 tinyurl.com
 gmail.com
