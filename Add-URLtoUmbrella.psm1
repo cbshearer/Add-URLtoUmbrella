@@ -1,0 +1,94 @@
+## Cisco Umbrella Enforcement
+## Chris Shearer
+## 27-Aug-2020
+## Umbrella Enforcement API: https://docs.umbrella.com/enforcement-api/reference/
+
+
+Function Add-URLtoUmbrella
+{
+    ## Accept CLI parameters
+        param ($u)
+
+    ## specify TLS
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 
+
+    ## Umbrella Key
+    ## How to get an Enforcement API integration key: https://support.umbrella.com/hc/en-us/articles/231248748-Cisco-Umbrella-The-Umbrella-Enforcement-API-for-Custom-Integrations
+        $UmbrellaCustomerKey = "xxxxxxxxxxxxxxxxxxxx"
+        $UmbrellaURI = "https://s-platform.api.opendns.com/1.0/events?customerKey=" + $UmbrellaCustomerKey
+
+    ## Assign variables if they were entered from the CLI
+        if ($u){$MalURLs = @($u)}
+        
+    ## If variable wasn't passed from CLI, use what was saved into file directly, or from an external text file.
+        else {Write-Host -f magenta "No URL found, exiting."}
+
+
+    ## Reference an external customizable AllowList file rather than list multiple in this script. 
+    ## Note the Umbrella 'Domain Acceptance Process' already sorts the domains and compares against the Alexa top 1000 (https://docs.umbrella.com/enforcement-api/reference/#domain-acceptance-process-1)
+        $AllowList = get-content 'd:\scripts\powershell\add-urltoUmbrella\AllowList.txt'
+
+    ## Loop through each url in the array.
+    foreach ($MalURL in $MalURLs)
+        {
+            $UmbrellaAdd = $null
+            Write-Host -f cyan "==================="
+
+            ## Clean up URL
+                ## Add http:// if it isn't there
+                    if  ($MalURL -notlike "http*") {$MalURL = "http://" + $MalURL}
+                ## Reduce full URL to just the domain
+                    $domain = ([System.Uri]$MalURL).Host -replace '^www\.'
+                    Write-Host "Domain   :" $domain
+                    Write-Host "Result   :" $MalURL
+                    if (!($domain)) {$domain = $MalURL}
+            
+            ## See if the allow list contains the domain we are trying to add
+                if ($AllowList -notcontains $domain)                                
+                    {
+                        Write-Host "Allowed? :" -nonewline; write-host -f Green " Not found in allow list."
+                        ## Specify headers
+                            $UmbrellaHeaders = @{'Content-Type' = 'application/json'}
+                        
+                        ## build date to specification
+                            $UmbrellaDate = get-date -f yyyy-MM-ddThh:mm:ssZ
+                        
+                        ## build body 
+                            $UmbrellaBody =  [pscustomobject]@{ "alertTime"=$UmbrellaDate;
+                                                                "deviceId"=$env:computername;
+                                                                "deviceVersion"="Add-URLtoUmbrella 1.0";
+                                                                "dstDomain"=$domain;
+                                                                "dstUrl"=$MalURL;
+                                                                "eventTime"=$UmbrellaDate;
+                                                                "protocolVersion"="1.0a";
+                                                                "providerName"="Security Platform";
+                                                            }
+                        ## convert body to JSON?
+                            $UmbrellaBody = $UmbrellaBody | ConvertTo-Json
+
+                        ## Add this domain/url to Umbrella
+                            try { 
+                                Start-Sleep 2 ## slow it down so we dont hit the rate limit of 100 calls/min.
+                                $UmbrellaAdd = Invoke-RestMethod -uri $UmbrellaURI -ErrorVariable RestError -Headers $UmbrellaHeaders -body $UmbrellaBody -Method Post 
+                            }
+                            catch {
+                                $cat = $_.Exception ## if there is an error store it as catch
+                                $dog = $_
+                                Write-Host -f yellow $cat
+                                Write-Host -f blue $RestError
+                                Write-Host -f Magenta $dog
+                            }
+                        ## resulting data stored here
+                            if ($UmbrellaAdd.id) {
+                                Write-Host "Result   : " -nonewline; Write-Host -f DarkCyan $MalURL -NoNewline; Write-Host -f green " added to Cisco Umbrella successfully."
+                            }
+                            else {
+                                Write-Host "Failure  : " -nonewline; Write-Host -f magenta "Something went wrong."
+                            }
+                    }
+                else {Write-Host "Allowed? :" -nonewline; Write-host "FAILURE: " -nonewline; Write-Host -f green $MalURL -NoNewline; Write-Host " was found in the allow list."}
+            Write-Host -f cyan "==================="
+        }
+}
+
+Export-ModuleMember -Function Add-URLtoUmbrella
