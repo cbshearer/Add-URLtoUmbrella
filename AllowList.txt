@@ -11,3 +11,4 @@ google.com
 tinyurl.com
 gmail.com
 apmortgage.com
+storage.googleapis.com
